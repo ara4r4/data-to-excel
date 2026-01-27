@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Collector</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div class="card">
+      <div id="form-view">
+        <div class="header">
+          <h2>Data Entry Portal</h2>
+          <div class="stats">Stored Entries: <span id="entry-count">0</span></div>
+        </div>
+
+        <form id="dynamic-form">
+          <div id="form-content"></div>
+          <button type="submit" class="primary-btn">Save Entry</button>
+        </form>
+
+        <div class="admin-actions">
+          <button onclick="exportMasterFile()" class="export-btn">Download Master Excel</button>
+          <button onclick="clearDatabase()" class="clear-btn">Clear All Data</button>
+        </div>
+      </div>
+
+      <div id="success-view" class="hidden">
+        <div class="success-icon">✓</div>
+        <h2>Entry Saved Locally</h2>
+        <p>The data has been added to the master list.</p>
+        <button onclick="resetForm()" class="primary-btn">Add Next Entry</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
