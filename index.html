@@ -1,39 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Collector</title>
-    <link rel="stylesheet" href="style.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Collection Portal</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  </head>
-  <body>
-    <div class="card">
-      <div id="form-view">
-        <div class="header">
-          <h2>Data Entry Portal</h2>
-          <div class="stats">Stored Entries: <span id="entry-count">0</span></div>
+</head>
+<body data-theme="light">
+
+    <nav class="navbar">
+        <div class="nav-logo" id="display-title">Portal</div>
+        <div class="nav-links">
+            <button class="nav-item active" onclick="showTab('entry-tab')">📝 Entry</button>
+            <button class="nav-item" onclick="showTab('data-tab')">📊 History</button>
+            <button class="nav-item" onclick="showTab('settings-tab')">⚙️ Settings</button>
         </div>
+    </nav>
 
-        <form id="dynamic-form">
-          <div id="form-content"></div>
-          <button type="submit" class="primary-btn">Save Entry</button>
-        </form>
+    <main class="content-wrapper">
+        <section id="entry-tab" class="tab-content active">
+            <div class="card">
+                <div id="form-view">
+                    <div class="header">
+                        <h2>New Record</h2>
+                        <p>Fill in the Kurdish data fields below</p>
+                    </div>
+                    <form id="dynamic-form">
+                        <div id="form-content"></div>
+                        <button type="submit" class="primary-btn">Save to Master List</button>
+                    </form>
+                </div>
+                <div id="success-view" class="hidden">
+                    <div class="success-icon">✓</div>
+                    <h2>Successfully Saved</h2>
+                    <button onclick="resetForm()" class="primary-btn">Add Another</button>
+                </div>
+            </div>
+        </section>
 
-        <div class="admin-actions">
-          <button onclick="exportMasterFile()" class="export-btn">Download Master Excel</button>
-          <button onclick="clearDatabase()" class="clear-btn">Clear All Data</button>
-        </div>
-      </div>
+        <section id="data-tab" class="tab-content hidden">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Collected Data Summary</h3>
+                    <div class="table-actions">
+                        <button onclick="exportMasterFile()" class="export-btn">Download Master Excel</button>
+                        <button onclick="clearDatabase()" class="clear-btn">Delete All Records</button>
+                    </div>
+                </div>
+                <div class="scroll-table">
+                    <table id="data-table">
+                        <thead><tr id="table-head"></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
-      <div id="success-view" class="hidden">
-        <div class="success-icon">✓</div>
-        <h2>Entry Saved Locally</h2>
-        <p>The data has been added to the master list.</p>
-        <button onclick="resetForm()" class="primary-btn">Add Next Entry</button>
-      </div>
-    </div>
+        <section id="settings-tab" class="tab-content hidden">
+            <div class="card settings-card">
+                <h3>Personalization</h3>
+                <div class="setting-item">
+                    <label>Collector Name</label>
+                    <input type="text" id="user-name-input" onchange="saveSettings()">
+                </div>
+                <div class="setting-item">
+                    <label>App Text Size</label>
+                    <input type="range" id="font-slider" min="14" max="28" value="16" oninput="applyFontSize(this.value); saveSettings();">
+                </div>
+                <div class="setting-item">
+                    <label>Interface Theme</label>
+                    <button onclick="toggleDarkMode()" class="mode-btn">Switch Dark/Light Mode</button>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
