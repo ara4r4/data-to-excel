@@ -2,80 +2,160 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Collection Portal</title>
-    <link rel="stylesheet" href="./style.css">
+    <title>Data Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="light">
 
-    <nav class="navbar">
-        <div class="nav-logo" id="display-title">Portal</div>
-        <div class="nav-links">
-            <button class="nav-item active" onclick="showTab('entry-tab')">📝 Entry</button>
-            <button class="nav-item" onclick="showTab('data-tab')">📊 History</button>
-            <button class="nav-item" onclick="showTab('settings-tab')">⚙️ Settings</button>
-        </div>
-    </nav>
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <main class="content-wrapper">
-        <section id="entry-tab" class="tab-content active">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2 id="side-logo">Portal</h2>
+        </div>
+        <nav class="nav-menu">
+            <button class="nav-item" onclick="showPage('home-page')">🏠 Home / Entry</button>
+            <button class="nav-item" onclick="showPage('file-page')">📁 Excel File</button>
+            <button class="nav-item" onclick="showPage('local-page')">📊 Local History</button>
+            <button class="nav-item" onclick="showPage('analytics-page')">📈 Analytics</button>
+            <button class="nav-item" onclick="showPage('settings-page')">⚙️ Settings</button>
+        </nav>
+        <div class="sidebar-footer">
+            <p id="collector-badge">User: Guest</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <button id="mobile-menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+
+        <section id="home-page" class="page">
+            <div class="dashboard-header-grid">
+                <div class="mini-stat"><span>Local Entries</span><strong id="dash-local-count">0</strong></div>
+                <div class="mini-stat"><span>Excel Source</span><strong id="dash-excel-count">0</strong></div>
+            </div>
+
             <div class="card">
                 <div id="form-view">
-                    <div class="header">
-                        <h2>New Record</h2>
-                        <p>Fill in the data fields below</p>
-                    </div>
+                    <h2>New Data Entry</h2>
                     <form id="dynamic-form">
-                        <div id="form-content"></div>
-                        <button type="submit" class="primary-btn">Save to Master List</button>
+                        <div id="form-content">Loading...</div>
+                        <button type="submit" class="primary-btn">Save Record</button>
                     </form>
                 </div>
-                <div id="success-view" class="hidden">
-                    <div class="success-icon">✓</div>
-                    <h2>Successfully Saved</h2>
-                    <button onclick="resetForm()" class="primary-btn">Add Another</button>
-                </div>
+<div id="success-view" class="hidden success-container" style="display: none;">
+    </div>
             </div>
         </section>
 
-        <section id="data-tab" class="tab-content hidden">
+        <section id="file-page" class="page hidden">
             <div class="table-container">
                 <div class="table-header">
-                    <h3>Collected Data Summary</h3>
-                    <div class="table-actions">
-                        <button onclick="exportMasterFile()" class="export-btn">Download Master Excel</button>
-                        <button onclick="clearDatabase()" class="clear-btn">Delete All Records</button>
-                    </div>
+                    <h3>Source Table (data.xlsx)</h3>
+                    <div id="file-metadata" class="meta-badge"></div>
                 </div>
                 <div class="scroll-table">
-                    <table id="data-table">
-                        <thead><tr id="table-head"></tr></thead>
-                        <tbody id="table-body"></tbody>
+                    <table>
+                        <thead id="excel-head"></thead>
+                        <tbody id="excel-body"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <section id="settings-tab" class="tab-content hidden">
-            <div class="card settings-card">
-                <h3>Personalization</h3>
+        <section id="local-page" class="page hidden">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Your Submissions</h3>
+                    <div class="header-actions">
+                        <button onclick="exportMasterFile()" class="export-btn">Download Excel</button>
+                        <button onclick="clearAllData()" class="delete-all-btn">Delete All</button>
+                    </div>
+                </div>
+                <div class="scroll-table">
+                    <table>
+                        <thead id="local-head"></thead>
+                        <tbody id="local-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+       <section id="analytics-page" class="page hidden">
+    <div class="card" style="max-width: 900px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>📊 Advanced Analytics</h3>
+            <span id="chart-total-count" class="meta-badge">Records: 0</span>
+        </div>
+        
+        <div class="chart-controls">
+            <div class="control-group">
+                <label>Data Source</label>
+                <select id="chart-source-select" onchange="initChartBuilder()">
+                    <option value="local">Local Submissions</option>
+                    <option value="excel">Excel Source File</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Main Column (X-Axis)</label>
+                <select id="chart-column-select" onchange="updateChart()"></select>
+            </div>
+
+            <div class="control-group">
+                <label>Chart Type</label>
+                <select id="chart-type-select" onchange="updateChart()">
+                    <option value="bar">Bar Chart</option>
+                    <option value="pie">Pie (Percentages)</option>
+                    <option value="line">Line Graph</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    <div class="card" style="max-width: 900px; margin-top: 30px;">
+    <h3>🔗 Combination Matrix (Pivot Analysis)</h3>
+    <p style="font-size: 0.9rem; color: #64748b;">Pick two columns to see how their options overlap.</p>
+    
+    <div class="chart-controls">
+        <div class="control-group">
+            <label>First Column</label>
+            <select id="matrix-col-1" onchange="runMatrixAnalysis()"></select>
+        </div>
+        <div class="control-group">
+            <label>Second Column</label>
+            <select id="matrix-col-2" onchange="runMatrixAnalysis()"></select>
+        </div>
+    </div>
+
+    <div id="matrix-results" class="matrix-grid">
+        <div style="padding: 20px; color: #94a3b8; text-align: center;">Select two columns to begin...</div>
+    </div>
+</div>
+</section>
+
+        <section id="settings-page" class="page hidden">
+            <div class="card">
+                <h3>App Settings</h3>
                 <div class="setting-item">
-                    <label>Collector Name</label>
-                    <input type="text" id="user-name-input" onchange="saveSettings()">
+                    <label>Your Name (Author)</label>
+                    <input type="text" id="user-name-input" oninput="saveSettings()">
                 </div>
                 <div class="setting-item">
-                    <label>App Text Size</label>
-                    <input type="range" id="font-slider" min="14" max="28" value="16" oninput="applyFontSize(this.value); saveSettings();">
+                    <label>Global Font Size</label>
+                    <input type="range" id="font-slider" min="14" max="24" value="16" oninput="applyFontSize(this.value); saveSettings();">
                 </div>
-                <div class="setting-item">
-                    <label>Interface Theme</label>
-                    <button onclick="toggleDarkMode()" class="mode-btn">Switch Dark/Light Mode</button>
-                </div>
+                <button onclick="toggleDarkMode()" class="primary-btn outline">Toggle Dark Mode</button>
             </div>
         </section>
     </main>
 
-    <script src="./script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
