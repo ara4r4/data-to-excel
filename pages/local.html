@@ -1,0 +1,15 @@
+<div class="table-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
+        <h3>📊 مێژووی تۆمارە ناوخۆییەکان</h3>
+        <div style="display:flex; gap:10px;">
+            <button onclick="exportMasterFile()" class="primary-btn" style="width:auto; padding:8px 15px; background:#10b981;">داگرتنی ئەکسڵ</button>
+            <button onclick="clearAllData()" class="primary-btn" style="width:auto; padding:8px 15px; background:#ef4444;">سڕینەوەی هەموو</button>
+        </div>
+    </div>
+    <div class="scroll-table">
+        <table>
+            <thead id="local-head"></thead>
+            <tbody id="local-body"></tbody>
+        </table>
+    </div>
+</div>

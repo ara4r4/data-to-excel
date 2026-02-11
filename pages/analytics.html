@@ -1,0 +1,24 @@
+<div class="card">
+    <h3>📈 شیکاری و گرافیک</h3>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+        <select id="chart-source-select" onchange="initChartBuilder()">
+            <option value="local">ناوخۆیی</option>
+            <option value="excel">ئەکسڵ</option>
+        </select>
+        <select id="chart-column-select" onchange="updateChart()"></select>
+        <select id="chart-type-select" onchange="updateChart()">
+            <option value="bar">Bar Chart</option>
+            <option value="pie">Pie Chart</option>
+        </select>
+    </div>
+    <div style="height:400px;"><canvas id="myChart"></canvas></div>
+</div>
+
+<div class="card">
+    <h3>🔗 ماتریکسی تێکەڵاو</h3>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+        <select id="matrix-col-1" onchange="runMatrixAnalysis()"></select>
+        <select id="matrix-col-2" onchange="runMatrixAnalysis()"></select>
+    </div>
+    <div id="matrix-results" class="matrix-grid"></div>
+</div>
