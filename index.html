@@ -6,6 +6,10 @@
     <title>پۆرتاڵی داتا</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico?v=2">
 </head>
@@ -23,6 +27,25 @@
     <main class="main-content">
         <button id="mobile-menu-toggle" onclick="toggleSidebar()">☰ مێنۆ</button>
         <div id="page-container"></div>
+        <footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h5>ماڵپەڕ</h5>
+            <p>سیستەمێکە بۆ ئاسانکاری لە کۆکردنەوە و شیکردنەوەی داتا.</p>
+        </div>
+        
+        <div class="footer-section">
+            <h5>پەیوەندی</h5>
+            <p>📧 ئیمەیڵ: <a href="mailto:slaw@bikakurdi.com">slaw@bikakurdi.com</a></p>
+        </div>
+
+        <div class="footer-section">
+            <h5>گەشەپێدەر</h5>
+            <p>دروستکراوە لەلایەن: <strong>ئارا دلێر</strong></p>
+            <p>© 2026 هەموو مافەکان پارێزراوە</p>
+        </div>
+    </div>
+</footer>
     </main>
 
     <script src="script.js"></script>
@@ -50,6 +73,8 @@
         </ul>
         <br>
         <strong>لەلایەن ئارا دلێر دروستکراوە</strong>
+        <br>
+         <i>📧 ئیمەیڵ: <a href="mailto:slaw@bikakurdi.com">slaw@bikakurdi.com</a></i>
     </p>
 </div>
 
@@ -62,5 +87,7 @@
         </div>
     </div>
 </div>
+
+
 </body>
 </html>

@@ -311,3 +311,49 @@ th {
 .modal-overlay.hidden {
   display: none;
 }
+
+.main-footer {
+    background: var(--card-bg); 
+    border-top: 1px solid var(--border);
+    padding: 40px 0; 
+    width: 100%;
+    margin-top: auto; 
+    border-radius: 16px;
+}
+
+.footer-content {
+  
+    width: 90%; 
+    max-width: 1400px; 
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 0 20px; 
+}
+
+.footer-section h4 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.footer-section p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    opacity: 0.8;
+}
+
+.footer-section a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+
+@media (max-width: 768px) {
+    .main-footer {
+        margin-right: 0;
+        padding-bottom: 100px; 
+        text-align: center;
+    }
+}

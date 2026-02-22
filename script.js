@@ -1,3 +1,5 @@
+Chart.register(ChartDataLabels);
+let matrixChart = null;
 (function () {
   const savedTheme = localStorage.getItem("theme") || "light";
   document.body.setAttribute("data-theme", savedTheme);
@@ -122,112 +124,210 @@ function renderTable(data, headId, bodyId, isLocal) {
 }
 
 function initChartBuilder() {
-  const sourceSelect = document.getElementById("chart-source-select");
-  const source = sourceSelect ? sourceSelect.value : "local";
-  let dataToUse =
-    source === "local"
-      ? JSON.parse(localStorage.getItem("master_list") || "[]")
-      : window.excelFileData || [];
+    // ڕاستەوخۆ داتای ئەکسڵ بەکاربهێنە
+    const dataToUse = window.excelFileData || [];
+    
+    const mainSelect = document.getElementById('chart-column-select');
+    const matrixSelect1 = document.getElementById('matrix-col-1');
+    const matrixSelect2 = document.getElementById('matrix-col-2');
+    
+    if (dataToUse.length === 0) return;
 
-  const mainSelect = document.getElementById("chart-column-select");
-  const matrixSelect1 = document.getElementById("matrix-col-1");
-  const matrixSelect2 = document.getElementById("matrix-col-2");
-
-  if (dataToUse.length === 0) return;
-
-  const columns = Object.keys(dataToUse[0]);
-  const optionsHTML = columns
-    .map((col) => `<option value="${col}">${col}</option>`)
-    .join("");
-
-  if (mainSelect) mainSelect.innerHTML = optionsHTML;
-  if (matrixSelect1) {
-    matrixSelect1.innerHTML = optionsHTML;
+    const columns = Object.keys(dataToUse[0]);
+    const optionsHTML = columns.map(col => `<option value="${col}">${col}</option>`).join('');
+    
+    if (mainSelect) mainSelect.innerHTML = optionsHTML;
+    if (matrixSelect1) matrixSelect1.innerHTML = optionsHTML;
     if (matrixSelect2) {
-      matrixSelect2.innerHTML = optionsHTML;
-      matrixSelect2.selectedIndex = columns.length > 1 ? 1 : 0;
+        matrixSelect2.innerHTML = optionsHTML;
+        matrixSelect2.selectedIndex = columns.length > 1 ? 1 : 0;
     }
-  }
-  updateChart();
-  runMatrixAnalysis();
+    updateChart();
+    runMatrixAnalysis();
+}
+
+
+function resetChartZoom() {
+    if (currentChart) currentChart.resetZoom();
+}
+
+
+
+function exportChartAsPNG(canvasId, fileName) {
+    const originalCanvas = document.getElementById(canvasId);
+    
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = originalCanvas.width;
+    tempCanvas.height = originalCanvas.height;
+    const ctx = tempCanvas.getContext('2d');
+
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+
+    ctx.drawImage(originalCanvas, 0, 0);
+
+
+    const link = document.createElement('a');
+    link.download = `${fileName}_${new Date().getTime()}.png`;
+    link.href = tempCanvas.toDataURL('image/png', 1.0);
+    link.click();
+}
+
+
+function downloadChart() {
+    exportChartAsPNG('myChart', 'Main_Graph');
+}
+
+function downloadMatrixChart() {
+    exportChartAsPNG('matrixChart', 'Matrix_Graph');
 }
 
 function updateChart() {
-  const source = document.getElementById("chart-source-select").value;
-  let dataToUse =
-    source === "local"
-      ? JSON.parse(localStorage.getItem("master_list") || "[]")
-      : window.excelFileData;
-  const col = document.getElementById("chart-column-select").value;
-  const type = document.getElementById("chart-type-select").value;
+const dataToUse = window.excelFileData || [];
+    const col = document.getElementById('chart-column-select').value;
+    const type = document.getElementById('chart-type-select').value;
 
-  if (!col || dataToUse.length === 0) return;
-  const counts = {};
-  dataToUse.forEach((row) => {
-    let val = row[col] || "Unknown";
-    counts[val] = (counts[val] || 0) + 1;
-  });
+    if (!col || dataToUse.length === 0) return;
 
-  const sortedLabels = Object.keys(counts).sort(
-    (a, b) => counts[b] - counts[a],
-  );
-  const sortedValues = sortedLabels.map((label) => counts[label]);
+    const counts = {};
+    dataToUse.forEach(row => {
+        let val = row[col] || "Unknown";
+        counts[val] = (counts[val] || 0) + 1;
+    });
 
-  if (currentChart) currentChart.destroy();
-  currentChart = new Chart(
-    document.getElementById("myChart").getContext("2d"),
-    {
-      type: type,
-      data: {
-        labels: sortedLabels,
-        datasets: [
-          {
-            label: `کۆی گشتی بەپێی ${col}`,
-            data: sortedValues,
-            backgroundColor: [
-              "#4f46e5",
-              "#10b981",
-              "#f59e0b",
-              "#ef4444",
-              "#8b5cf6",
-            ],
-          },
-        ],
-      },
-      options: { responsive: true, maintainAspectRatio: false },
-    },
-  );
+    const labels = Object.keys(counts);
+    const values = labels.map(l => counts[l]);
+    const total = values.reduce((a, b) => a + b, 0);
+
+    if (currentChart) currentChart.destroy();
+
+    currentChart = new Chart(document.getElementById('myChart').getContext('2d'), {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `کۆی گشتی بەپێی ${col}`,
+                data: values,
+                backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                // --- DATALABELS SETTINGS ---
+                datalabels: {
+                    color: '#fff', // White text
+                    anchor: 'end',
+                    align: 'start',
+                    offset: -10,
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    },
+                    formatter: (value) => {
+                        let percentage = ((value / total) * 100).toFixed(1) + "%";
+                        return `${value} (${percentage})`; // Shows "Count (Percentage)"
+                    },
+                    // Ensure labels are visible on dark/light bars
+                    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                    textShadowBlur: 3,
+                    
+                },
+                zoom: {
+            pan: {
+                enabled: true,
+                mode: 'x', // Allows dragging left/right
+            },
+            zoom: {
+                wheel: { enabled: true }, // Zoom with mouse wheel
+                pinch: { enabled: true }, // Zoom with fingers on iPhone
+                mode: 'x',
+            }
+        }
+            }
+        }
+    });
 }
 
 function runMatrixAnalysis() {
-  const source = document.getElementById("chart-source-select").value;
-  let data =
-    source === "local"
-      ? JSON.parse(localStorage.getItem("master_list") || "[]")
-      : window.excelFileData;
-  const col1 = document.getElementById("matrix-col-1").value;
-  const col2 = document.getElementById("matrix-col-2").value;
-  const container = document.getElementById("matrix-results");
+const data = window.excelFileData || [];
+    const col1 = document.getElementById('matrix-col-1').value;
+    const col2 = document.getElementById('matrix-col-2').value;
+    
+    if (!col1 || !col2 || data.length === 0) return;
+     const container = document.getElementById('matrix-results');
 
-  if (!col1 || !col2 || data.length === 0) return;
-  const combinations = {};
-  data.forEach((row) => {
-    const comboKey = `${row[col1] || "Empty"} + ${row[col2] || "Empty"}`;
-    combinations[comboKey] = (combinations[comboKey] || 0) + 1;
-  });
+    const combinations = {};
+    let totalEntries = data.length;
 
-  const sortedCombos = Object.entries(combinations).sort((a, b) => b[1] - a[1]);
-  container.innerHTML = sortedCombos
-    .map(
-      ([key, count]) => `
-        <div class="matrix-card">
-            <div class="matrix-label">${key}</div>
-            <div class="matrix-count">${count}</div>
-        </div>
-    `,
-    )
-    .join("");
+    data.forEach(row => {
+        const val1 = row[col1] || "Empty";
+        const val2 = row[col2] || "Empty";
+        const comboKey = `${val1} + ${val2}`;
+        combinations[comboKey] = (combinations[comboKey] || 0) + 1;
+    });
+
+    const sortedCombos = Object.entries(combinations).sort((a, b) => b[1] - a[1]);
+
+    // 1. Update List View with Percentages
+    container.innerHTML = sortedCombos.map(([key, count]) => {
+        let percent = ((count / totalEntries) * 100).toFixed(1);
+        return `
+            <div class="matrix-card">
+                <div class="matrix-label">${key}</div>
+                <div style="text-align: left;">
+                    <span class="matrix-count">${count}</span>
+                    <small style="display:block; font-size:0.7rem; color:var(--primary); margin-top:4px;">${percent}%</small>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // 2. Update Matrix Chart
+    const labels = sortedCombos.map(item => item[0]);
+    const values = sortedCombos.map(item => item[1]);
+
+    if (matrixChart) matrixChart.destroy();
+
+    const ctx = document.getElementById('matrixChart').getContext('2d');
+    matrixChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `${col1} و ${col2}`,
+                data: values,
+                backgroundColor: '#8b5cf6', // A different color (Purple) for the matrix
+                borderRadius: 8
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Makes it a horizontal bar chart for easier reading of long labels
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    formatter: (value) => {
+                        let percent = ((value / totalEntries) * 100).toFixed(1);
+                        return `${value} (${percent}%)`;
+                    }
+                }
+            }
+        }
+    });
 }
+
+// Add the download function for the Matrix
+
 
 function deleteRow(i) {
   if (confirm("دڵنیای لە سڕینەوە؟")) {
